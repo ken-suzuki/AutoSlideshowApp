@@ -24,7 +24,6 @@ public class MainActivity extends AppCompatActivity {
     private static final int PERMISSIONS_REQUEST_CODE = 100;
 
     Timer mTimer;
-    ImageView mImageView;
 
     Handler mHandler = new Handler();
 
@@ -54,7 +53,6 @@ public class MainActivity extends AppCompatActivity {
             getContentsInfo();
         }
 
-        mImageView = (ImageView) findViewById(R.id.imageView);
         mPrevButton = (Button) findViewById(R.id.prev_button);
         mStartButton = (Button) findViewById(R.id.start_button);
         mNextButton = (Button) findViewById(R.id.next_button);
@@ -67,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
                     mTimer.schedule(new TimerTask() {
                         @Override
                         public void run() {
-                            if (cursor.moveToFirst()) {
+                            if (cursor.moveToLast()) {
                             }
                             cursor.close();
                         }
@@ -112,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
 
         // 画像の情報を取得する
         ContentResolver resolver = getContentResolver();
-        cursor = resolver.query(
+        Cursor cursor = resolver.query(
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI, // データの種類
                 null, // 項目(null = 全項目)
                 null, // フィルタ条件(null = フィルタなし)
@@ -121,14 +119,12 @@ public class MainActivity extends AppCompatActivity {
         );
 
         if (cursor.moveToFirst()) {
-            do {
-                // indexからIDを取得し、そのIDから画像のURIを取得する
-                int fieldIndex = cursor.getColumnIndex(MediaStore.Images.Media._ID);
-                Long id = cursor.getLong(fieldIndex);
-                Uri imageUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
+            int fieldIndex = cursor.getColumnIndex(MediaStore.Images.Media._ID);
+            Long id = cursor.getLong(fieldIndex);
+            Uri imageUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
 
-                Log.d("ANDROID", "URI : " + imageUri.toString());
-            } while (cursor.moveToNext());
+            ImageView imageView = (ImageView) findViewById(R.id.imageView);
+            imageView.setImageURI(imageUri);
         }
         cursor.close();
     }
